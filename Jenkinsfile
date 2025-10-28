@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "react_app"
         CONTAINER_NAME = "react_app_container"
-        CONTAINER_PORT = "80"     
+        CONTAINER_PORT = "3000"     
         HOST_PORT = "3000"       
     }
 

@@ -1,20 +1,21 @@
-# Stage 1: Build the React app
+# Stage 1: Build Next.js app
 FROM node:20 AS builder
 
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
 
 COPY . .
 RUN npm run build
 
-# stage 2: serving using nginx
-FROM nginx:stable-alpine
+# Stage 2: Run Next.js in Production
+FROM node:20
 
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app ./
 
-EXPOSE 80
+EXPOSE 3000
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start"]
