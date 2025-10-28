@@ -1,6 +1,5 @@
-# Stage 1: Build Next.js app
-FROM node:20 AS builder
-
+# Stage 1: Build the Next.js app
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
@@ -9,13 +8,14 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Stage 2: Run Next.js in Production
-FROM node:20
+# Stage 2: Serve using NGINX
+FROM nginx:stable-alpine
 
-WORKDIR /app
+# Remove default nginx website
+RUN rm -rf /usr/share/nginx/html/*
 
-COPY --from=builder /app ./
+# Copy exported static site from build stage
+COPY --from=builder /app/out/ /usr/share/nginx/html/
 
-EXPOSE 3000
-
-CMD ["npm", "start"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
