@@ -7,7 +7,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Calculator',
   description: 'Created to demonstrate CI/CD',
-  generator: 'a-simple-calculator',
+  generator: 'it-is-a-simple-calculator',
 }
 
 export default function RootLayout({
