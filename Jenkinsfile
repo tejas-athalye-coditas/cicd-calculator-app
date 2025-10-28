@@ -8,9 +8,9 @@ pipeline {
         HOST_PORT = "80"
 
         SSH_CREDENTIALS = "3tierkey"
-        PROD_IP = "13.235.87.69"
-        DEV_IP = "3.7.254.4"
-        MAIN_IP = "13.203.207.223"
+        PROD_IP = "15.206.88.48"
+        DEV_IP = "13.233.119.16"
+        MAIN_IP = "13.203.227.174"
     }
 
     stages {
@@ -31,7 +31,7 @@ pipeline {
 
         stage("Push to Docker Hub") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                withCredentials([usernamePassword(credentialsId: 'docker_creds',
                                                  usernameVariable: 'DOCKER_USER',
                                                  passwordVariable: 'DOCKER_PASS')]) {
 
