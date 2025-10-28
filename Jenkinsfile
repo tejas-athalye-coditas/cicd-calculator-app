@@ -2,65 +2,88 @@ pipeline {
     agent { label "bond" }
 
     environment {
-        IMAGE_NAME = "react_app"
-        CONTAINER_NAME = "react_app_container"
-        CONTAINER_PORT = "80"     
-        HOST_PORT = "80"       
+        IMAGE_NAME = "tejasathalye/next_calculator:1.0"
+        CONTAINER_NAME = "next_calc_instance"
+        CONTAINER_PORT = "80"
+        HOST_PORT = "80"
+
+        SSH_CREDENTIALS = "3tierkey"
+        PROD_IP = "13.235.87.69"
+        DEV_IP = "3.7.254.4"
+        MAIN_IP = "13.203.207.223"
     }
 
     stages {
         stage("Checkout") {
             steps {
-                echo "Cloning the repository"
                 checkout scm
-                echo "Repository checkout completed"
             }
         }
 
         stage("Build Docker Image") {
             steps {
                 sh '''
-                echo "Building Docker image for production React application"
-                sudo docker build -t $IMAGE_NAME:latest .
+                echo "Building Docker image"
+                sudo docker build -t $IMAGE_NAME:$BRANCH_NAME .
                 '''
             }
         }
 
-        stage("Deploy Container") {
+        stage("Push to Docker Hub") {
             steps {
-                sh '''
-                echo "Checking existing containers using ${HOST_PORT}"
-                PORT_CONTAINERS=$(sudo docker ps -a --filter "publish=${HOST_PORT}" --format "{{.ID}}")
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                                                 usernameVariable: 'DOCKER_USER',
+                                                 passwordVariable: 'DOCKER_PASS')]) {
 
-                if [ -n "$PORT_CONTAINERS" ]; then
-                    echo "Stopping old containers on port ${HOST_PORT}"
-                    sudo docker stop $PORT_CONTAINERS
-                    echo "Removing old containers on port ${HOST_PORT}"
-                    sudo docker rm $PORT_CONTAINERS
-                fi
+                    sh '''
+                    echo "Pushing Docker Image to Docker Hub"
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    sudo docker push $IMAGE_NAME:$BRANCH_NAME
+                    '''
+                }
+            }
+        }
 
-                echo "Checking for old container name ${CONTAINER_NAME}"
-                if sudo docker ps -a --format "{{.Names}}" | grep -qw ${CONTAINER_NAME}; then
-                    echo "Stopping and removing container ${CONTAINER_NAME}"
-                    sudo docker stop ${CONTAINER_NAME} || true
-                    sudo docker rm ${CONTAINER_NAME} || true
-                fi
-
-                echo "Starting new Nginx React container"
-                sudo docker run -d -p ${HOST_PORT}:${CONTAINER_PORT} \
-                --name ${CONTAINER_NAME} \
-                $IMAGE_NAME:latest
-                '''
+        stage("Deploy to Environment") {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == "main") {
+                        deployToServer(MAIN_IP)
+                    } else if (env.BRANCH_NAME == "dev") {
+                        deployToServer(DEV_IP)
+                    } else if (env.BRANCH_NAME == "prod") {
+                        deployToServer(PROD_IP)
+                    } else {
+                        echo "No deployment for this branch: ${env.BRANCH_NAME}"
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            echo "Deployment successful. Application reachable on: http://<server-ip>:${HOST_PORT}"
+            echo "Deployment successful"
         }
         failure {
             echo "Deployment failed"
         }
+    }
+}
+
+def deployToServer(serverIp) {
+    sshagent([SSH_CREDENTIALS]) {
+        sh """
+        ssh -o StrictHostKeyChecking=no ubuntu@${serverIp} '
+            sudo docker stop ${CONTAINER_NAME} || true
+            sudo docker rm ${CONTAINER_NAME} || true
+
+            sudo docker pull ${IMAGE_NAME}:${BRANCH_NAME}
+
+            sudo docker run -d -p ${HOST_PORT}:${CONTAINER_PORT} \
+                --name ${CONTAINER_NAME} \
+                ${IMAGE_NAME}:${BRANCH_NAME}
+        '
+        """
     }
 }
