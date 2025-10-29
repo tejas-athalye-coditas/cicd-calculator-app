@@ -6,7 +6,7 @@ pipeline {
         CONTAINER_NAME = "react_app_container"
         CONTAINER_PORT = "80"     
         HOST_PORT = "80"
-        EMAIL_RECIPIENTS = "tejasdems@gmail.com, gayatri.kurulkar@coditas.com"       
+        EMAIL_RECIPIENTS = "tejasdems@gmail.com, gayatri.kurulkar@coditas.com, tejas.athalye@coditas.com"       
     }
 
     stages {
