@@ -6,7 +6,7 @@ pipeline {
         CONTAINER_NAME = "react_app_container"
         CONTAINER_PORT = "80"     
         HOST_PORT = "80"
-        EMAIL_RECIPIENTS = "tejasdems@gmail.com, gayatri.kurulkar@coditas.com, tejas.athalye@coditas.com"       
+        // EMAIL_RECIPIENTS = "tejasdems@gmail.com, gayatri.kurulkar@coditas.com, tejas.athalye@coditas.com"       
     }
 
     stages {
@@ -61,19 +61,21 @@ pipeline {
 
     post {
         success {
-            echo "Deployment successful. Application reachable on: http://<server-ip>:${HOST_PORT}"
+            echo "Deployment successful."
             emailext (
-                to: "${env.EMAIL_RECIPIENTS}",
-                subject: "SUCCESS: ${env.JOB_NAME}-${env.BUILD_NUMBER}",
-                body: "Build success, hehehehe"
+                body: "$DEFAULT_CONTENT",
+                from: "tejas.athalye@coditas.com",
+                subject: "$DEFAULT_SUBJECT",
+                to: "$DEFAULT_RECIPIENTS"
             )
         }
         failure {
             echo "Deployment failed"
             emailext (
-                to: "${env.EMAIL_RECIPIENTS}",
-                subject: "FaILED: ${env.JOB_NAME}-${env.BUILD_NUMBER}",
-                body: "Build failure, wawawawa"
+                body: "$DEFAULT_CONTENT",
+                from: "tejas.athalye@coditas.com",
+                subject: "$DEFAULT_SUBJECT",
+                to: "$DEFAULT_RECIPIENTS"
             )
         }
     }
