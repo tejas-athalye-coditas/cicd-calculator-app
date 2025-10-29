@@ -5,7 +5,8 @@ pipeline {
         IMAGE_NAME = "react_app"
         CONTAINER_NAME = "react_app_container"
         CONTAINER_PORT = "80"     
-        HOST_PORT = "80"       
+        HOST_PORT = "80"
+        EMAIL_RECIPIENTS = "tejasdems@gmail.com, gayatri.kurulkar@coditas.com"       
     }
 
     stages {
@@ -61,9 +62,19 @@ pipeline {
     post {
         success {
             echo "Deployment successful. Application reachable on: http://<server-ip>:${HOST_PORT}"
+            emailtext {
+                to: env.EMAIL_RECIPIENTS,
+                subject: "SUCCESS: ${env.JOB_NAME}-${env.BUILD_NUMBER}",
+                body: "Build success, hehehehe"
+            }
         }
         failure {
             echo "Deployment failed"
+            emailtext {
+                to: env.EMAIL_RECIPIENTS,
+                subject: "FaILED: ${env.JOB_NAME}-${env.BUILD_NUMBER}",
+                body: "Build failure, wawawawa"
+            }
         }
     }
 }
