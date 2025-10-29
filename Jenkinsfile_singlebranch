@@ -62,7 +62,7 @@ pipeline {
     post {
         success {
             echo "Deployment successful. Application reachable on: http://<server-ip>:${HOST_PORT}"
-            emailtext {
+            emailext {
                 to: env.EMAIL_RECIPIENTS,
                 subject: "SUCCESS: ${env.JOB_NAME}-${env.BUILD_NUMBER}",
                 body: "Build success, hehehehe"
@@ -70,7 +70,7 @@ pipeline {
         }
         failure {
             echo "Deployment failed"
-            emailtext {
+            emailext {
                 to: env.EMAIL_RECIPIENTS,
                 subject: "FaILED: ${env.JOB_NAME}-${env.BUILD_NUMBER}",
                 body: "Build failure, wawawawa"
