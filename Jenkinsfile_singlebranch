@@ -50,6 +50,9 @@ pipeline {
                 sudo docker run -d -p ${HOST_PORT}:${CONTAINER_PORT} \
                 --name ${CONTAINER_NAME} \
                 $IMAGE_NAME:latest
+
+                echo "Removing the unused build cache"
+                sudo docker image prune -f
                 '''
             }
         }
