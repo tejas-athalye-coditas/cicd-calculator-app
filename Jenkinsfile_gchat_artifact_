@@ -6,7 +6,7 @@ pipeline {
         IMAGE_TAG = "build-${env.BUILD_NUMBER}"
         REG_CREDENTIALS = "docker_creds"
         DEPLOY_USER = "ubuntu"
-        DEPLOY_HOSTS = "15.206.84.53"
+        DEPLOY_HOSTS = "3.110.165.169"
         SSH_KEY = "3tierkey"
         CONTAINER_NAME = "nextjs_calculator_app"
         GCHAT_WEBHOOK_URL = "gchat-jenkins-tasks"
