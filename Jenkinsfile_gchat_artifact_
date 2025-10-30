@@ -62,13 +62,17 @@ pipeline {
     
     post {
         success {
-            googlechatnotification url: 'id:gchat-jenkins-tasks',
+            googlechatnotification(
+                url: 'id:gchat-jenkins-tasks',
                 message: '$PROJECT_NAME: Build # $BUILD_NUMBER -> $BUILD_STATUS!'
+            )
         }
         
         failure {
-            googlechatnotification url: 'id:gchat-jenkins-tasks',
+            googlechatnotification(
+                url: 'id:gchat-jenkins-tasks',
                 message: '$PROJECT_NAME: Build # $BUILD_NUMBER -> $BUILD_STATUS!'
+            )
         }
     }
 }
