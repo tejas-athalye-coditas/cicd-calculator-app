@@ -61,18 +61,18 @@ pipeline {
     }
     
     post {
-        success {
-            googlechatnotification(
-                url: "id:gchat-jenkins-tasks",
-                message: "${env.PROJECT_NAME}: Build # ${env.BUILD_NUMBER} -> ${env.BUILD_STATUS}!"
-            )
-        }
-        
-        failure {
-            googlechatnotification(
-                url: "id:gchat-jenkins-tasks",
-                message: "${env.PROJECT_NAME}: Build # ${env.BUILD_NUMBER} -> ${env.BUILD_STATUS}!"
-            )
-        }
+    success {
+        googlechatnotification(
+            url: "id:gchat-jenkins-tasks",
+            message: "${env.JOB_NAME}: Build #${env.BUILD_NUMBER} -> SUCCESS ✅"
+        )
     }
+    failure {
+        googlechatnotification(
+            url: "id:gchat-jenkins-tasks",
+            message: "${env.JOB_NAME}: Build #${env.BUILD_NUMBER} -> FAILED ❌"
+        )
+    }
+}
+
 }
