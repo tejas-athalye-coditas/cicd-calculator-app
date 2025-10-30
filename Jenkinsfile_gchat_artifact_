@@ -9,7 +9,7 @@ pipeline {
         DEPLOY_HOSTS = "3.110.165.169"
         SSH_KEY = "3tierkey"
         CONTAINER_NAME = "nextjs_calculator_app"
-        GCHAT_WEBHOOK = "gchat-jenkins-tasks"
+        GCHAT_WEBHOOK_URL = "gchat-jenkins-tasks"
     }
 
     stages {
@@ -62,21 +62,13 @@ pipeline {
     
     post {
         success {
-            withCredentials([string(credentialsId: 'gchat-jenkins-tasks', variable: 'GCHAT_WEBHOOK')]) {
-                googlechatnotification(
-                    url: "${GCHAT_WEBHOOK}",
-                    message: "${env.JOB_NAME}: Build #${env.BUILD_NUMBER} -> SUCCESS"
-                )
-            }
+            googlechatnotification url: '${GCHAT_WEBHOOK_URL}',
+                message: '$PROJECT_NAME: Build # $BUILD_NUMBER -> $BUILD_STATUS!'
         }
         
         failure {
-            withCredentials([string(credentialsId: 'gchat-jenkins-tasks', variable: 'GCHAT_WEBHOOK')]) {
-                googlechatnotification(
-                    url: "${GCHAT_WEBHOOK}",
-                    message: "${env.JOB_NAME}: Build #${env.BUILD_NUMBER} -> FAILED"
-                )
-            }
+            googlechatnotification url: '${GCHAT_WEBHOOK_URL}',
+                message: '$PROJECT_NAME: Build # $BUILD_NUMBER -> $BUILD_STATUS!'
         }
     }
 }
