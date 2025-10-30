@@ -63,19 +63,19 @@ pipeline {
         success {
             echo "Deployment successful."
             emailext (
-                body: "$DEFAULT_CONTENT",
+                body: '$DEFAULT_CONTENT',
                 from: "tejas.athalye@coditas.com",
-                subject: "$DEFAULT_SUBJECT",
-                to: "$DEFAULT_RECIPIENTS"
+                subject: '$DEFAULT_SUBJECT',
+                to: '$DEFAULT_RECIPIENTS'
             )
         }
         failure {
             echo "Deployment failed"
             emailext (
-                body: "$DEFAULT_CONTENT",
+                body: '$DEFAULT_CONTENT',
                 from: "tejas.athalye@coditas.com",
-                subject: "$DEFAULT_SUBJECT",
-                to: "$DEFAULT_RECIPIENTS"
+                subject: '$DEFAULT_SUBJECT',
+                to: '$DEFAULT_RECIPIENTS'
             )
         }
     }
