@@ -62,12 +62,12 @@ pipeline {
     
     post {
         success {
-            googlechatnotification url: '${GCHAT_WEBHOOK_URL}',
+            googlechatnotification url: 'id:gchat-jenkins-tasks',
                 message: '$PROJECT_NAME: Build # $BUILD_NUMBER -> $BUILD_STATUS!'
         }
         
         failure {
-            googlechatnotification url: '${GCHAT_WEBHOOK_URL}',
+            googlechatnotification url: 'id:gchat-jenkins-tasks',
                 message: '$PROJECT_NAME: Build # $BUILD_NUMBER -> $BUILD_STATUS!'
         }
     }
