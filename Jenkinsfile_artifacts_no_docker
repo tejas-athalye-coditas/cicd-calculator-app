@@ -46,7 +46,7 @@ pipeline {
                 sshagent([SSH_CRED_ID]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
-                            mkdir -p ${DEPLOY_DIR} && rm -rf ${DEPLOY_DIR}/*
+                            sudo mkdir -p ${DEPLOY_DIR} && rm -rf ${DEPLOY_DIR}/*
                         '
                         scp -o StrictHostKeyChecking=no -r out/* ${REMOTE_USER}@${REMOTE_HOST}:${DEPLOY_DIR}/
                     """
