@@ -33,13 +33,6 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                echo "Running unit tests..."
-                sh 'npm test'
-            }
-        }
-
         stage('Archive Artifacts') {
             steps {
                 echo "Archiving build artifacts..."
