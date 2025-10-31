@@ -47,7 +47,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
                             sudo mkdir -p ${DEPLOY_DIR} && rm -rf ${DEPLOY_DIR}/*
-                            chown -R ubuntu:ubuntu ${DEPLOY_DIR}
+                            sudo chown -R ubuntu:ubuntu ${DEPLOY_DIR}
                         '
                         scp -o StrictHostKeyChecking=no -r out/* ${REMOTE_USER}@${REMOTE_HOST}:${DEPLOY_DIR}/
                     """
