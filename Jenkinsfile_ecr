@@ -2,11 +2,9 @@ pipeline {
     agent { label "new-bond-agent" }
 
     environment {
-        AWS_REGION="ap-south-1"
-        // ECR_REPO = "aws_ecr_repo_name"
+        AWS_REGION = "ap-south-1"
         IMAGE_TAG = "build-${env.BUILD_NUMBER}"
         CONTAINER_NAME = "nextjs_calculator_app"
-        // AWS_CREDENTIALS = "aws_new_ac"
     }
 
     stages {
@@ -16,40 +14,44 @@ pipeline {
             }
         }
 
-        stage('Authenticate ECR') {
+        stage('ECR Auth & docker build & Docker Push') {
             steps {
                 withCredentials([string(credentialsId: 'aws_ecr_repo_name', variable: 'ECR_REPO')]) {
-                sh '''
-                    export PATH=$PATH:/usr/local/bin
-                    echo "Logging in to ECR: $ECR_REPO"
-                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $ECR_REPO
-                '''
-        }
-            }
-        }
+                    sh '''
+                        export PATH=$PATH:/usr/local/bin
 
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t ${ECR_REPO}:${IMAGE_TAG} -f Dockerfile ."
-            }
-        }
+                        echo "Logging into ECR: $ECR_REPO"
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $ECR_REPO
 
-        stage('Push to ECR') {
-            steps {
-                sh "docker push ${ECR_REPO}:${IMAGE_TAG}"
-                sh "docker tag ${ECR_REPO}:${IMAGE_TAG} ${ECR_REPO}:latest"
-                sh "docker push ${ECR_REPO}:latest"
+                        echo "Building Docker Image"
+                        docker build -t $ECR_REPO:${IMAGE_TAG} -f Dockerfile .
+
+                        echo "Removing dangling images"
+                        docker images prune
+
+                        echo "Pushing image"
+                        docker push $ECR_REPO:${IMAGE_TAG}
+
+                        echo "Tagging as latest"
+                        docker tag $ECR_REPO:${IMAGE_TAG} $ECR_REPO:latest
+                        docker push $ECR_REPO:latest
+                    '''
+                }
             }
         }
 
         stage('Deploy on Agent') {
             steps {
-                sh """
-                    docker stop ${CONTAINER_NAME} || true
-                    docker rm ${CONTAINER_NAME} || true
-                    docker pull ${ECR_REPO}:${IMAGE_TAG}
-                    docker run -d --name ${CONTAINER_NAME} -p 81:80 --restart always ${ECR_REPO}:${IMAGE_TAG}
-                """
+                withCredentials([string(credentialsId: 'aws_ecr_repo_name', variable: 'ECR_REPO')]) {
+                    sh '''
+                        echo "Deploying container"
+                        docker stop ${CONTAINER_NAME} || true
+                        docker rm ${CONTAINER_NAME} || true
+
+                        docker pull $ECR_REPO:${IMAGE_TAG}
+                        docker run -d --name ${CONTAINER_NAME} -p 81:80 --restart always $ECR_REPO:${IMAGE_TAG}
+                    '''
+                }
             }
         }
     }
@@ -58,13 +60,13 @@ pipeline {
         success {
             googlechatnotification(
                 url: "id:gchat-jenkins-webhook",
-                message: "${env.JOB_NAME}: Build #${env.BUILD_NUMBER} → SUCCESS"
+                message: "${env.JOB_NAME}: Build #${env.BUILD_NUMBER} -> SUCCESS"
             )
         }
         failure {
             googlechatnotification(
                 url: "id:gchat-jenkins-webhook",
-                message: "${env.JOB_NAME}: Build #${env.BUILD_NUMBER} → FAILED"
+                message: "${env.JOB_NAME}: Build #${env.BUILD_NUMBER} -> FAILED"
             )
         }
     }
