@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         AWS_REGION="ap-south-1"
-        ECR_REPO = "id:aws_ecr_repo_name"
+        // ECR_REPO = "aws_ecr_repo_name"
         IMAGE_TAG = "build-${env.BUILD_NUMBER}"
         CONTAINER_NAME = "nextjs_calculator_app"
-        AWS_CREDENTIALS = "aws_new_ac"
+        // AWS_CREDENTIALS = "aws_new_ac"
     }
 
     stages {
@@ -18,10 +18,13 @@ pipeline {
 
         stage('Authenticate ECR') {
             steps {
-                sh """
-                        export PATH=$PATH:/usr/local/bin
-                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
-                    """
+                withCredentials([string(credentialsId: 'aws_ecr_repo_name', variable: 'ECR_REPO')]) {
+                sh '''
+                    export PATH=$PATH:/usr/local/bin
+                    echo "Logging in to ECR: $ECR_REPO"
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $ECR_REPO
+                '''
+        }
             }
         }
 
