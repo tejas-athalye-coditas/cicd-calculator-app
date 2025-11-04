@@ -2,6 +2,7 @@ pipeline {
     agent { label "new-bond-agent" }
 
     environment {
+        AWS_REGION="ap-south-1"
         ECR_REPO = "aws_ecr_repo_name"
         IMAGE_TAG = "build-${env.BUILD_NUMBER}"
         CONTAINER_NAME = "nextjs_calculator_app"
