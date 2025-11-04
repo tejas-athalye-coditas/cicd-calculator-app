@@ -27,7 +27,7 @@ pipeline {
                         docker build -t $ECR_REPO:${IMAGE_TAG} -f Dockerfile .
 
                         echo "Removing dangling images"
-                        docker images prune
+                        docker image prune -f
 
                         echo "Pushing image"
                         docker push $ECR_REPO:${IMAGE_TAG}
